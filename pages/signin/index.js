@@ -2,22 +2,34 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { TextField, Button } from "@mui/material";
 import { useMutation } from "react-query";
+import { useRouter } from "next/router";
 import axios from "axios";
 const SignIn = () => {
+  const router = useRouter();
   const form = useForm();
   const { register, handleSubmit, formState } = form;
   const { errors } = formState;
-  const addSignIn = async () => {
+  axios.defaults.withCredentials = true;
+  const addSignIn = async (data) => {
     return await axios.post("http://localhost:5000/signin", data);
   };
-  const { mutate } = useMutation(addSignIn, {
+  const { mutate, isError, isSuccess, data } = useMutation(addSignIn, {
     onSuccess: (data) => {
       alert("submitted");
+      console.log(data, "signin");
+      if (data.status === "Success") {
+        if (data.role === "admin") {
+          router.push("/dashboard");
+        } else {
+          router.push("/home");
+        }
+      }
     },
   });
   const onSubmit = (data) => {
     mutate(data);
   };
+
   return (
     <div>
       <h1 className="text-center">SIGN IN</h1>
